@@ -30,7 +30,7 @@ class UsuarioAtivoService {
       } else {
         throw Exception('Indisponível buscar usuários ativos da REST API');
       }
-    } catch (e) {
+    } on SocketException {
       throw SocketException("Não foi possível estabelecer conexão com a API");
     }
   }

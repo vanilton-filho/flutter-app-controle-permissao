@@ -1,3 +1,6 @@
+import 'package:controle_permissao_app/pages/ativacao_page.dart';
+import 'package:controle_permissao_app/pages/forms/create_usuario_page.dart';
+import 'package:controle_permissao_app/pages/forms/update_usuario_page.dart';
 import 'package:controle_permissao_app/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -21,7 +24,14 @@ class ControlePermissaoApp extends StatelessWidget {
       title: 'Controle de Permissão',
       // debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.green),
-      home: HomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePage(),
+        '/create': (context) => CreateUsuarioPage(),
+        '/update': (context) => UpdateUsuarioPage(),
+        '/active': (context) => AtivacaoPage(),
+      },
+      // home: HomePage(),
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

@@ -1,56 +1,74 @@
-import 'package:controle_permissao_app/model/usuario_ativo.dart';
-import 'package:controle_permissao_app/pages/widgets/custom_card_widget.dart';
-import 'package:controle_permissao_app/service/usuario_ativo_service.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:controle_permissao_app/model/usuario.dart';
+import 'package:controle_permissao_app/service/usuario_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomePage extends StatefulWidget {
+class AtivacaoPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _AtivacaoPageState createState() => _AtivacaoPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  UsuarioAtivoService usuarioAtivoService = new UsuarioAtivoService();
-  late final Future<List<UsuarioAtivo>> futureUsuarioAtivo;
+class _AtivacaoPageState extends State<AtivacaoPage> {
+  UsuarioService usuarioService = new UsuarioService();
+  late final Future<List<Usuario>> futureUsuarioAtivo;
 
   @override
   void initState() {
     super.initState();
-    // Agora nossa Future de List<UsuarioAtivo> está no escopo de gerenciamento de estados desse widget
-    futureUsuarioAtivo = usuarioAtivoService.fetchUsuarios();
+    // Agora nossa Future de List<Usuario> está no escopo de gerenciamento de estados desse widget
+    futureUsuarioAtivo = usuarioService.fetchUsuarios();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.white,
         actions: [
-          IconButton(
-              icon: Icon(Icons.verified_user),
-              onPressed: () =>
-                  Navigator.pushReplacementNamed(context, '/active'))
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: IconButton(
+              icon: Icon(
+                Icons.clear,
+                color: Colors.black,
+                size: 42.0,
+              ),
+              onPressed: () => Navigator.popAndPushNamed(context, '/'),
+            ),
+          ),
         ],
-        centerTitle: true,
-        title: Text("Controle de Permissão",
-            style: GoogleFonts.roboto(fontSize: 21)),
       ),
       body: RefreshIndicator(
         onRefresh: _refreshUsuarios,
         child: FutureBuilder(
           future: futureUsuarioAtivo,
-          builder: (context, AsyncSnapshot<List<UsuarioAtivo>> snapshot) {
+          builder: (context, AsyncSnapshot<List<Usuario>> snapshot) {
             if (snapshot.hasData) {
-              List<UsuarioAtivo> usuariosAtivos = snapshot.data!;
+              List<Usuario> usuariosAtivos = snapshot.data!;
               return ListView.builder(
                   scrollDirection: Axis.vertical,
                   itemCount: usuariosAtivos.length,
                   itemBuilder: (context, index) {
                     final usuarioAtivo = usuariosAtivos[index];
-                    return CustomCardWidget(
-                      usuario: usuarioAtivo,
-                    );
+                    return SwitchListTile(
+                        title: Text(
+                          '@${usuarioAtivo.login}',
+                          style: GoogleFonts.sourceSansPro(fontSize: 21.0),
+                        ),
+                        value: usuarioAtivo.status!,
+                        onChanged: (value) {
+                          if (value)
+                            usuarioService.ativar(usuarioAtivo.id!);
+                          else
+                            usuarioService.desativar(usuarioAtivo.id!);
+
+                          setState(() {
+                            usuarioAtivo.status = value;
+                          });
+                        });
                   });
             } else if (snapshot.hasError) {
               return Column(
@@ -86,20 +104,11 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        tooltip: 'Cadastrar novo usuário',
-        onPressed: () => _navigateToCreateUsuario(context),
-      ),
     );
   }
 
-  _navigateToCreateUsuario(BuildContext context) {
-    return Navigator.pushReplacementNamed(context, '/create');
-  }
-
   Future<void> _refreshUsuarios() async {
-    final UsuarioAtivoService usuarioService = UsuarioAtivoService();
+    final UsuarioService usuarioService = UsuarioService();
 
     setState(() {
       usuarioService.fetchUsuarios();

@@ -5,25 +5,50 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-class CreateUsuarioPage extends StatefulWidget {
+class UpdateUsuarioPage extends StatefulWidget {
+  Usuario? usuario;
+
+  UpdateUsuarioPage({this.usuario});
+
   @override
-  _CreateUsuarioPageState createState() => _CreateUsuarioPageState();
+  _UpdateUsuarioPageState createState() => _UpdateUsuarioPageState();
 }
 
-class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
-  final _usuario = Usuario();
+class _UpdateUsuarioPageState extends State<UpdateUsuarioPage> {
   final _formKey = GlobalKey<FormState>();
   // Vai ser utilizado para salvar a data
   DateTime? _initDate = DateTime.now();
 
-  final _datePickerController = TextEditingController(text: 'dd/mm/aaaa');
-
+  TextEditingController? _datePickerController;
   DateTime? _picked;
+
+  @override
+  void initState() {
+    DateTime? date =
+        DateFormat('yyyy-MM-dd').parse(this.widget.usuario!.dataNascimento!);
+    _picked = date;
+    String? dataFormatada = DateFormat('dd/MM/yyyy').format(date);
+    _datePickerController = TextEditingController(text: dataFormatada);
+
+    if (this.widget.usuario!.recursos!.contains(1))
+      this.widget.usuario!.recursosOption![Usuario.EditarPerfil] = true;
+    if (this.widget.usuario!.recursos!.contains(2))
+      this.widget.usuario!.recursosOption![Usuario.VisualizarPerfil] = true;
+    if (this.widget.usuario!.recursos!.contains(3))
+      this.widget.usuario!.recursosOption![Usuario.EditarPost] = true;
+    if (this.widget.usuario!.recursos!.contains(4))
+      this.widget.usuario!.recursosOption![Usuario.VisualizarPost] = true;
+    if (this.widget.usuario!.recursos!.contains(5))
+      this.widget.usuario!.recursosOption![Usuario.ExcluirPost] = true;
+
+    this.widget.usuario!.recursos = [];
+    super.initState();
+  }
 
   @override
   void dispose() {
     // Pra remover da árvore de widgets
-    _datePickerController.dispose();
+    _datePickerController!.dispose();
     super.dispose();
   }
 
@@ -65,6 +90,7 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: TextFormField(
+                        initialValue: this.widget.usuario!.nome!,
                         decoration: InputDecoration(
                             prefixIcon: Icon(Icons.person),
                             labelText: 'Nome Completo',
@@ -76,13 +102,14 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
 
                         onChanged: (val) {
                           setState(() {
-                            _usuario.nome = val;
+                            this.widget.usuario!.nome = val;
                           });
                         }),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: TextFormField(
+                        initialValue: this.widget.usuario!.login!,
                         decoration: InputDecoration(
                             prefixIcon: Icon(Icons.alternate_email),
                             labelText: 'Login',
@@ -92,13 +119,14 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
                             : null,
                         onChanged: (val) {
                           setState(() {
-                            _usuario.login = val;
+                            this.widget.usuario!.login = val;
                           });
                         }),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: TextFormField(
+                        initialValue: this.widget.usuario!.email!,
                         decoration: InputDecoration(
                             prefixIcon: Icon(Icons.email),
                             labelText: 'Email',
@@ -109,25 +137,7 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
                         keyboardType: TextInputType.emailAddress,
                         onChanged: (val) {
                           setState(() {
-                            _usuario.email = val;
-                          });
-                        }),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: TextFormField(
-                        decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.remove_red_eye_sharp),
-                            labelText: 'Senha',
-                            border: OutlineInputBorder()),
-                        validator: (String? value) => (value!.length < 8)
-                            ? 'A senha precisa ter mais de 8 caracteres.'
-                            : null,
-                        // keyboardType: TextInputType.visiblePassword,
-                        obscureText: true,
-                        onChanged: (val) {
-                          setState(() {
-                            _usuario.senha = val;
+                            this.widget.usuario!.email = val;
                           });
                         }),
                   ),
@@ -136,7 +146,7 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
                     child: TextFormField(
                       controller: _datePickerController,
                       readOnly: true,
-                      style: _datePickerController.text == 'dd/mm/aaaa'
+                      style: _datePickerController!.text == 'dd/mm/aaaa'
                           ? TextStyle(color: Colors.grey)
                           : TextStyle(color: Colors.black),
                       decoration: InputDecoration(
@@ -145,7 +155,7 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
                           border: OutlineInputBorder()),
                       onTap: () => _selectorDateWidget(),
                       validator: (_) {
-                        return (_datePickerController.text == 'dd/mm/aaaa')
+                        return (_datePickerController!.text == 'dd/mm/aaaa')
                             ? 'Por favor, forneça a sua data de nascimento'
                             : null;
                       },
@@ -174,50 +184,69 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
                         ),
                         CheckboxListTile(
                             title: const Text('Editar Perfil'),
-                            value:
-                                _usuario.recursosOption![Usuario.EditarPerfil],
+                            value: this
+                                .widget
+                                .usuario!
+                                .recursosOption![Usuario.EditarPerfil],
                             onChanged: (bool? val) {
                               setState(() {
-                                _usuario.recursosOption![Usuario.EditarPerfil] =
+                                this
+                                        .widget
+                                        .usuario!
+                                        .recursosOption![Usuario.EditarPerfil] =
                                     val!;
                               });
                             }),
                         CheckboxListTile(
                             title: const Text('Visualizar Perfil'),
-                            value: _usuario
+                            value: this
+                                .widget
+                                .usuario!
                                 .recursosOption![Usuario.VisualizarPerfil],
                             onChanged: (bool? val) {
                               setState(() {
-                                _usuario.recursosOption![
+                                this.widget.usuario!.recursosOption![
                                     Usuario.VisualizarPerfil] = val!;
                               });
                             }),
                         CheckboxListTile(
                             title: const Text('Editar Post'),
-                            value: _usuario.recursosOption![Usuario.EditarPost],
+                            value: this
+                                .widget
+                                .usuario!
+                                .recursosOption![Usuario.EditarPost],
                             onChanged: (bool? val) {
                               setState(() {
-                                _usuario.recursosOption![Usuario.EditarPost] =
-                                    val!;
+                                this
+                                    .widget
+                                    .usuario!
+                                    .recursosOption![Usuario.EditarPost] = val!;
                               });
                             }),
                         CheckboxListTile(
                             title: const Text('Visualizar Post'),
-                            value: _usuario
+                            value: this
+                                .widget
+                                .usuario!
                                 .recursosOption![Usuario.VisualizarPost],
                             onChanged: (bool? val) {
                               setState(() {
-                                _usuario.recursosOption![
+                                this.widget.usuario!.recursosOption![
                                     Usuario.VisualizarPost] = val!;
                               });
                             }),
                         CheckboxListTile(
                             title: const Text('Excluir Post'),
-                            value:
-                                _usuario.recursosOption![Usuario.ExcluirPost],
+                            value: this
+                                .widget
+                                .usuario!
+                                .recursosOption![Usuario.ExcluirPost],
                             onChanged: (bool? val) {
                               setState(() {
-                                _usuario.recursosOption![Usuario.ExcluirPost] =
+                                this
+                                        .widget
+                                        .usuario!
+                                        .recursosOption![Usuario.ExcluirPost] =
                                     val!;
                               });
                             }),
@@ -244,11 +273,12 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
                         if (form!.validate()) {
                           DateFormat format = DateFormat("yyyy-MM-dd");
 
-                          _usuario.dataNascimento = format.format(_picked!);
+                          this.widget.usuario!.dataNascimento =
+                              format.format(_picked!);
                           Map<String, dynamic> usuarioSerialized =
-                              _usuario.toJson();
+                              this.widget.usuario!.toJson();
                           print(usuarioSerialized);
-                          _createUsuario(usuarioSerialized);
+                          _update(usuarioSerialized);
                         }
                       },
                       child: Text(
@@ -301,7 +331,8 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _initDate!,
+      initialDate:
+          DateFormat('yyyy-MM-dd').parse(this.widget.usuario!.dataNascimento!),
       firstDate: DateTime(1900),
       lastDate: _initDate!,
       locale: Locale.fromSubtags(languageCode: 'pt', countryCode: 'BR'),
@@ -309,77 +340,42 @@ class _CreateUsuarioPageState extends State<CreateUsuarioPage> {
 
     if (picked != null && picked != _initDate) {
       setState(() {
-        _datePickerController.text = formatBr.format(picked).toString();
-        _picked = picked;
+        _datePickerController!.text = formatBr.format(picked).toString();
       });
     }
+
+    _picked = picked!;
   }
 
-  /**
-   * Esse método irá tentar fazer a requisição para
-   * a criação de um usuário e se bem sucedido apresentará
-   * um bottom sheet com uma mensagem de sucesso.
-   */
-  void _createUsuario(Map<String, dynamic> usuario) async {
+  void _update(Map<String, dynamic> usuarioSerialized) async {
     UsuarioService usuarioService = UsuarioService();
-    Usuario usuarioCriado = await usuarioService.post(usuario);
+    Usuario usuarioAtualizado =
+        await usuarioService.put(this.widget.usuario!.id!, usuarioSerialized);
 
-    await showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          height: 500,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 42.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 68.0,
+    final snackBar = SnackBar(
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+        content: Container(
+            height: 25.0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                    ),
                   ),
-                ),
-                Text(
-                  '@${usuarioCriado.login}, uhuuu!',
-                  style: GoogleFonts.roboto(
-                    fontSize: 23.0,
-                    fontWeight: FontWeight.bold,
+                  Text(
+                    'Ok! Usuário foi atualizado com sucesso!',
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Wrap(
-                    children: [
-                      Text(
-                        'Ficamos felizes de ter agora você conosco, aproveite o nosso app ;)',
-                        style: GoogleFonts.roboto(fontSize: 16.0),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(42.0),
-      ),
-    );
+                ],
+              ),
+            )));
 
-    // Quando tudo acabar, volta pra HomePage meu fio
-    Navigator.popAndPushNamed(context, '/');
-  }
-
-  _existRecursoMarked() {
-    return _usuario.recursosOption![Usuario.EditarPerfil]! ||
-        _usuario.recursosOption![Usuario.VisualizarPerfil]! ||
-        _usuario.recursosOption![Usuario.EditarPost]! ||
-        _usuario.recursosOption![Usuario.VisualizarPost]! ||
-        _usuario.recursosOption![Usuario.ExcluirPost]!;
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

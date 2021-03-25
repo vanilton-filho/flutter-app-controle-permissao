@@ -54,8 +54,70 @@ class UsuarioService {
         print(response.body);
         return parseUsuario(response.body);
       } else {
-        throw Exception('Indisponível buscar usuários ativos da REST API');
+        throw Exception('Indisponível salvar usuário');
       }
+    } catch (e) {
+      throw SocketException(e.toString());
+    }
+  }
+
+  Future<Usuario> put(int id, Map<String, dynamic> payload) async {
+    Uri uri = Uri.http(baseURL, "/usuarios/$id");
+    try {
+      final response = await http.put(uri,
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+          body: convert.json.encode(payload));
+      if (response.statusCode == 200) {
+        print(response.body);
+        return parseUsuario(response.body);
+      } else {
+        throw Exception('Indisponível atualizar usuário');
+      }
+    } catch (e) {
+      throw SocketException(e.toString());
+    }
+  }
+
+  Future<void> ativar(int id) async {
+    Uri uri = Uri.http(baseURL, "/usuarios/$id/ativo");
+    try {
+      final response = await http.put(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      );
+      // if (response.statusCode == 204) {
+      //   print(response.body);
+      //   return parseUsuario(response.body);
+      // } else {
+      //   throw Exception('Indisponível atualizar usuário');
+      // }
+    } catch (e) {
+      throw SocketException(e.toString());
+    }
+  }
+
+  Future<void> desativar(int id) async {
+    Uri uri = Uri.http(baseURL, "/usuarios/$id/ativo");
+    try {
+      final response = await http.delete(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      );
+      // if (response.statusCode == 204) {
+      //   print(response.body);
+      //   return parseUsuario(response.body);
+      // } else {
+      //   throw Exception('Indisponível atualizar usuário');
+      // }
     } catch (e) {
       throw SocketException(e.toString());
     }
