@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Usuario {
   bool? status;
 
@@ -6,7 +8,7 @@ class Usuario {
   String? login;
   String? email;
   String? senha;
-  String? dataNascimento;
+  DateTime? dataNascimento;
   List<int>? recursos = [];
   // Os recursos que podemos utilizar no momento de criar um usuário
   static const int EditarPerfil = 1;
@@ -31,7 +33,7 @@ class Usuario {
     nome = json['nome'];
     login = json['login'];
     email = json['email'];
-    dataNascimento = json['dataNascimento'];
+    dataNascimento = DateFormat('yyyy-MM-dd').parse(json['dataNascimento']);
   }
 
   Map<String, dynamic> toJson() {
@@ -40,7 +42,8 @@ class Usuario {
     data['login'] = this.login;
     data['email'] = this.email;
     data['senha'] = this.senha;
-    data['dataNascimento'] = this.dataNascimento;
+    data['dataNascimento'] =
+        DateFormat('yyyy-MM-dd').format(this.dataNascimento!);
     this.recursosOption!.forEach((key, value) {
       if (value) recursos!.add(key);
     });

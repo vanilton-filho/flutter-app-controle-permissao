@@ -9,15 +9,14 @@ class UsuarioService {
   final String baseURL = "192.168.0.111:8080";
 
   /// Desserializa o JSON recebido [responseBody] para uma lista de usuários ativos
-  List<Usuario> parseUsuarios(String responseBody) {
+  List<Usuario> toUsuarios(String responseBody) {
     final json = convert.json.decode(responseBody);
     return json.map<Usuario>((json) => Usuario.fromJson(json)).toList();
   }
 
-  Usuario parseUsuario(String responseBody) {
+  Usuario toUsuario(String responseBody) {
     final json = convert.json.decode(responseBody);
     return Usuario.fromJson(json);
-    // return json.map<String, dynamic>((json) => Usuario.fromJson(json));
   }
 
   Future<List<Usuario>> fetchUsuarios() async {
@@ -31,8 +30,7 @@ class UsuarioService {
       );
 
       if (response.statusCode == 200) {
-        print(response.body);
-        return parseUsuarios(response.body);
+        return toUsuarios(response.body);
       } else {
         throw Exception('Indisponível buscar usuários ativos da REST API');
       }
@@ -51,8 +49,7 @@ class UsuarioService {
           },
           body: convert.json.encode(payload));
       if (response.statusCode == 201) {
-        print(response.body);
-        return parseUsuario(response.body);
+        return toUsuario(response.body);
       } else {
         throw Exception('Indisponível salvar usuário');
       }
@@ -71,8 +68,7 @@ class UsuarioService {
           },
           body: convert.json.encode(payload));
       if (response.statusCode == 200) {
-        print(response.body);
-        return parseUsuario(response.body);
+        return toUsuario(response.body);
       } else {
         throw Exception('Indisponível atualizar usuário');
       }
@@ -81,7 +77,7 @@ class UsuarioService {
     }
   }
 
-  Future<void> ativar(int id) async {
+  Future<bool> ativar(int id) async {
     Uri uri = Uri.http(baseURL, "/usuarios/$id/ativo");
     try {
       final response = await http.put(
@@ -91,18 +87,14 @@ class UsuarioService {
           "Accept": "application/json",
         },
       );
-      // if (response.statusCode == 204) {
-      //   print(response.body);
-      //   return parseUsuario(response.body);
-      // } else {
-      //   throw Exception('Indisponível atualizar usuário');
-      // }
+
+      return response.statusCode == 204 ? true : false;
     } catch (e) {
       throw SocketException(e.toString());
     }
   }
 
-  Future<void> desativar(int id) async {
+  Future<bool> desativar(int id) async {
     Uri uri = Uri.http(baseURL, "/usuarios/$id/ativo");
     try {
       final response = await http.delete(
@@ -112,12 +104,7 @@ class UsuarioService {
           "Accept": "application/json",
         },
       );
-      // if (response.statusCode == 204) {
-      //   print(response.body);
-      //   return parseUsuario(response.body);
-      // } else {
-      //   throw Exception('Indisponível atualizar usuário');
-      // }
+      return response.statusCode == 204 ? true : false;
     } catch (e) {
       throw SocketException(e.toString());
     }

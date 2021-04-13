@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 /// Classe de serviço responsável por pelo endpoint de usuários
 class UsuarioAtivoService {
   /// Desserializa o JSON recebido [responseBody] para uma lista de usuários ativos
-  List<UsuarioAtivo> parseUsuarios(String responseBody) {
+  List<UsuarioAtivo> toUsuarios(String responseBody) {
     final json = convert.json.decode(responseBody);
     return json
         .map<UsuarioAtivo>((json) => UsuarioAtivo.fromJson(json))
@@ -26,7 +26,7 @@ class UsuarioAtivoService {
       );
       if (response.statusCode == 200) {
         print(response.body);
-        return parseUsuarios(response.body);
+        return toUsuarios(response.body);
       } else {
         throw Exception('Indisponível buscar usuários ativos da REST API');
       }

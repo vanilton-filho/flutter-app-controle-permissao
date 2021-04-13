@@ -1,11 +1,12 @@
 import 'package:controle_permissao_app/model/recurso.dart';
+import 'package:intl/intl.dart';
 
 class UsuarioAtivo {
   int? id;
   String? nome;
   String? login;
   String? email;
-  String? dataNascimento;
+  DateTime? dataNascimento;
   List<Recurso>? recursos;
 
   UsuarioAtivo(
@@ -21,7 +22,7 @@ class UsuarioAtivo {
     nome = json['nome'];
     login = json['login'];
     email = json['email'];
-    dataNascimento = json['dataNascimento'];
+    dataNascimento = DateFormat('yyyy-MM-dd').parse(json['dataNascimento']);
     if (json['recursos'] != null) {
       recursos = <Recurso>[];
       json['recursos'].forEach((v) {
@@ -36,7 +37,8 @@ class UsuarioAtivo {
     data['nome'] = this.nome;
     data['login'] = this.login;
     data['email'] = this.email;
-    data['dataNascimento'] = this.dataNascimento;
+    data['dataNascimento'] =
+        DateFormat('yyyy-MM-dd').format(this.dataNascimento!);
     data['recursos'] = this.recursos!.map((v) => v.toJson()).toList();
     return data;
   }
